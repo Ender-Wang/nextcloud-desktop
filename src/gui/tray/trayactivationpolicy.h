@@ -5,9 +5,12 @@
 
 #pragma once
 
+#include <QPoint>
+#include <QRect>
 #include <QSystemTrayIcon>
 
-namespace OCC {
+namespace OCC
+{
 
 /** @brief Defines which tray-icon activations open the primary tray popup. */
 class TrayActivationPolicy
@@ -25,6 +28,12 @@ public:
 #else
         return false;
 #endif
+    }
+
+    /** @brief Keep the open state for a mouse press on the tray icon until activation toggles it. */
+    [[nodiscard]] static bool shouldClearOpenOnResign(const QRect &iconGeometry, const QPoint &cursorPosition, const bool mouseDown)
+    {
+        return !mouseDown || !iconGeometry.contains(cursorPosition);
     }
 };
 

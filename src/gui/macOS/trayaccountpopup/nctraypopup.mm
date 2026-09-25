@@ -14,9 +14,11 @@
 #import "trayaccountpopupviewutils.h"
 
 #include "systray.h"
+#include "tray/trayactivationpolicy.h"
 #include "tray/usermodel.h"
 
 #include <QCoreApplication>
+#include <QCursor>
 #include <QVariantMap>
 
 using namespace OCC::Mac::TrayPopupImageUtils;
@@ -54,7 +56,12 @@ using namespace OCC::Mac::TrayPopupViewUtils;
     [_accountActionsPopup orderOut:nil];
     [self clearActiveAccountRow];
     [self orderOut:nil];
-    OCC::Systray::instance()->setIsOpen(false);
+    const auto eventType = NSApp.currentEvent.type;
+    const auto mouseDown = eventType == NSEventTypeLeftMouseDown || eventType == NSEventTypeRightMouseDown;
+    const auto tray = OCC::Systray::instance();
+    if (OCC::TrayActivationPolicy::shouldClearOpenOnResign(tray->geometry(), QCursor::pos(), mouseDown)) {
+        tray->setIsOpen(false);
+    }
 }
 
 - (void)closeAllPopups
